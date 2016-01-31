@@ -77,10 +77,10 @@ namespace CLV.Tools
 		{			
 			System.Windows.Forms.Label label_LogItemIndex = new System.Windows.Forms.Label();
 			System.Windows.Forms.TextBox textBox_LogItemStr = new System.Windows.Forms.TextBox();
-			System.Windows.Forms.ComboBox comboBox_LogItemType = new System.Windows.Forms.ComboBox();			
-			this.groupBox_ItemList.Controls.Add(comboBox_LogItemType);
-			this.groupBox_ItemList.Controls.Add(textBox_LogItemStr);
-			this.groupBox_ItemList.Controls.Add(label_LogItemIndex);			
+			System.Windows.Forms.ComboBox comboBox_LogItemType = new System.Windows.Forms.ComboBox();
+			this.panel_ItemPanel.Controls.Add(comboBox_LogItemType);
+			this.panel_ItemPanel.Controls.Add(textBox_LogItemStr);
+			this.panel_ItemPanel.Controls.Add(label_LogItemIndex);
 			
 			int logItemDisplayOffset = 20;
 			int logItemHeight = 25;
@@ -128,7 +128,7 @@ namespace CLV.Tools
 									"CANdata8"});
 			if(logItemStr.Length == 0)
 			{
-				comboBox_LogItemType.SelectedIndex = 0; //empty item will be 'Ignore'
+				comboBox_LogItemType.SelectedIndex = 0; //empty logItemStr will be 'Ignore'
 			}
 			
 			
@@ -142,28 +142,42 @@ namespace CLV.Tools
 		void Button_ApplyClick(object sender, EventArgs e)
 		{
 			// For prototyping, I put a static rule. 2015.12.14
-			RawLogItemConfigList.Add("Ignore");
-			RawLogItemConfigList.Add("Date");
-			RawLogItemConfigList.Add("Time");
-			RawLogItemConfigList.Add("Ignore");
-			RawLogItemConfigList.Add("Ignore");
-			RawLogItemConfigList.Add("Ignore");
-			RawLogItemConfigList.Add("CAN ID");
-			RawLogItemConfigList.Add("Ignore");
-			RawLogItemConfigList.Add("Ignore");
-			RawLogItemConfigList.Add("MsgSize");
-			RawLogItemConfigList.Add("Ignore");
-			RawLogItemConfigList.Add("CANdata1");
-			RawLogItemConfigList.Add("CANdata2");
-			RawLogItemConfigList.Add("CANdata3");
-			RawLogItemConfigList.Add("CANdata4");
-			RawLogItemConfigList.Add("CANdata5");
-			RawLogItemConfigList.Add("CANdata6");
-			RawLogItemConfigList.Add("CANdata7");
-			RawLogItemConfigList.Add("CANdata8");
+//			RawLogItemConfigList.Add("Ignore");
+//			RawLogItemConfigList.Add("Date");
+//			RawLogItemConfigList.Add("Time");
+//			RawLogItemConfigList.Add("Ignore");
+//			RawLogItemConfigList.Add("Ignore");
+//			RawLogItemConfigList.Add("Ignore");
+//			RawLogItemConfigList.Add("CAN ID");
+//			RawLogItemConfigList.Add("Ignore");
+//			RawLogItemConfigList.Add("Ignore");
+//			RawLogItemConfigList.Add("MsgSize");
+//			RawLogItemConfigList.Add("Ignore");
+//			RawLogItemConfigList.Add("CANdata1");
+//			RawLogItemConfigList.Add("CANdata2");
+//			RawLogItemConfigList.Add("CANdata3");
+//			RawLogItemConfigList.Add("CANdata4");
+//			RawLogItemConfigList.Add("CANdata5");
+//			RawLogItemConfigList.Add("CANdata6");
+//			RawLogItemConfigList.Add("CANdata7");
+//			RawLogItemConfigList.Add("CANdata8");
 			
 			//원래는 화면 조작 결과를 읽어서 RawLogItemConfigList를 구성해야 한다.
-			
+			foreach(System.Windows.Forms.Control childControl in this.panel_ItemPanel.Controls)
+			{
+				if(childControl is System.Windows.Forms.ComboBox)
+				{
+					ComboBox itemTypeSelecter = (ComboBox)childControl;
+					if(itemTypeSelecter.SelectedItem != null)
+					{
+						RawLogItemConfigList.Add(itemTypeSelecter.SelectedItem.ToString());
+					}
+					else
+					{						
+						RawLogItemConfigList.Add(itemTypeSelecter.Items[0].ToString()); //default assign to 'Ignore'
+					}
+				}
+			}
 			
 			StringBuilder parsingRuleMapResult = new StringBuilder();
 			int ruleCounter = 0;

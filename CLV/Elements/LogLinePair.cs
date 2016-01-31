@@ -8,6 +8,7 @@
  */
 using System;
 using System.Collections.Generic;
+using System.Windows.Forms;
 
 namespace CLV
 {
@@ -36,6 +37,7 @@ namespace CLV
 			}
 		}
 		
+		private String[] logItemList = {"CAN ID", "CANdata1", "CANdata2", "CANdata3", "CANdata4", "CANdata5", "CANdata6", "CANdata7", "CANdata8"};
 		private int lineIndex;
 		private List<String> translatedLogData; //this list contains data value only (not the data field name)
 		
@@ -51,31 +53,29 @@ namespace CLV
 			translatedLogData = new List<String>();
 		}
 		
-		public void CreateAssortedLogLineItems(String[] aRawLogLine, List<String> rawLogItemConfigList)
+		public bool CreateAssortedLogLineItems(String[] aRawLogLine, List<String> rawLogItemConfigList)
 		{
 			if(AssortedLogLine.Count != 0)
 			{
 				Debug.Warning("AssortedLogLine is not empty and is being cleared before reallocation.");
 				AssortedLogLine.Clear();
 			}
+
 			int rawLogLineDataNum = aRawLogLine.Length;
-			AssortedLogLine.Add(aRawLogLine[rawLogItemConfigList.IndexOf("CAN ID")]);
-			if(rawLogItemConfigList.IndexOf("CANdata1") >= rawLogLineDataNum) return;
-			AssortedLogLine.Add(aRawLogLine[rawLogItemConfigList.IndexOf("CANdata1")]);
-			if(rawLogItemConfigList.IndexOf("CANdata2") >= rawLogLineDataNum) return;
-			AssortedLogLine.Add(aRawLogLine[rawLogItemConfigList.IndexOf("CANdata2")]);
-			if(rawLogItemConfigList.IndexOf("CANdata3") >= rawLogLineDataNum) return;
-			AssortedLogLine.Add(aRawLogLine[rawLogItemConfigList.IndexOf("CANdata3")]);
-			if(rawLogItemConfigList.IndexOf("CANdata4") >= rawLogLineDataNum) return;
-			AssortedLogLine.Add(aRawLogLine[rawLogItemConfigList.IndexOf("CANdata4")]);
-			if(rawLogItemConfigList.IndexOf("CANdata5") >= rawLogLineDataNum) return;
-			AssortedLogLine.Add(aRawLogLine[rawLogItemConfigList.IndexOf("CANdata5")]);
-			if(rawLogItemConfigList.IndexOf("CANdata6") >= rawLogLineDataNum) return;
-			AssortedLogLine.Add(aRawLogLine[rawLogItemConfigList.IndexOf("CANdata6")]);
-			if(rawLogItemConfigList.IndexOf("CANdata7") >= rawLogLineDataNum) return;
-			AssortedLogLine.Add(aRawLogLine[rawLogItemConfigList.IndexOf("CANdata7")]);
-			if(rawLogItemConfigList.IndexOf("CANdata8") >= rawLogLineDataNum) return;
-			AssortedLogLine.Add(aRawLogLine[rawLogItemConfigList.IndexOf("CANdata8")]);			
+			bool result = true;
+
+			foreach(String logItem in logItemList)
+			{
+				if(rawLogItemConfigList.IndexOf(logItem) < 0) { result = false; break;}
+				if(rawLogItemConfigList.IndexOf(logItem) >= rawLogLineDataNum) { result = false; break;}
+				AssortedLogLine.Add(aRawLogLine[rawLogItemConfigList.IndexOf(logItem)]);
+			}
+			
+			if(result == false)
+			{
+				MessageBox.Show("Finding Log Item was not successful. Please check configuration and try again.");
+			}
+			return result;
 		}
 		
 		public void InitializeTransalatedLogLine()

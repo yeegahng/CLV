@@ -63,17 +63,13 @@ namespace CLV
 				// Configure parsor
 				String[] sampleLogLine = (String[])LogList[0]; // Keep a sample line to let the user configure parsing rule.
 				RawLogItemConfiguratorWindow configWindow = new RawLogItemConfiguratorWindow();
-				do
-				{
-					RawLogItemConfigList = configWindow.GenerateConfigurationList(sampleLogLine).GetConfigurationList();
-				} while(false);
-				
+				RawLogItemConfigList = configWindow.GenerateConfigurationList(sampleLogLine).GetConfigurationList();
 				
 				// Determine log line range to translate
 				int fromLineNum, toLineNum;
 				DetermineLogLineRangeToTranslate(1, LogList.Count, out fromLineNum, out toLineNum);
-				fromLineNum = 21105;
-				toLineNum = 21126;
+//				fromLineNum = 21105;
+//				toLineNum = 21126;
 				
 				// Parse raw log strings
 				CanMsgFinder canLookupTables = new CanMsgFinder();
@@ -84,7 +80,11 @@ namespace CLV
 					String[] aLogLine = (String[])LogList[logListIndex];
 					
 					LogLinePair aLogLinePair = new LogLinePair(logListIndex+1);
-					aLogLinePair.CreateAssortedLogLineItems(aLogLine, RawLogItemConfigList);
+					bool logItemSearchResult = aLogLinePair.CreateAssortedLogLineItems(aLogLine, RawLogItemConfigList);
+					if(logItemSearchResult == false)
+					{
+						return;
+					}
 					canLookupTables.FindMsgNameFrom(aLogLinePair);
 					
 					Debug.Log("Line#"+(logListIndex+1) + ": " + aLogLinePair.CanMessageName
