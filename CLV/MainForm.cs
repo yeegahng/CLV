@@ -36,14 +36,22 @@ namespace CLV
 			this.comboBox_PopupMode.SelectedIndex = 1; //#1: Cell Click
 		}
 		
+		private void InitializeElements()
+		{
+			this.LogLineViewRaw.Rows.Clear();
+			this.LogLineViewTranslated.Rows.Clear();
+			this.LogLinePairList.Clear();
+			this.CurrentlySelectedRow = -1;
+		}
+		
 		void ToolTip_OpenLogFileClick(object sender, EventArgs e)
 		{			
 			OpenFileDialog openFileDialog = new OpenFileDialog();
 			if(openFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
 			{
+				InitializeElements();
+				
 				List<String> RawLogItemConfigList;
-				this.LogLineViewRaw.Rows.Clear();
-				this.LogLineViewTranslated.Rows.Clear();
 
 				// Read raw log strings from the file
 				System.IO.StreamReader sr = new System.IO.StreamReader(openFileDialog.FileName);	
@@ -242,10 +250,24 @@ namespace CLV
 				{
 					toLineNum = maxOfToLineNum;
 				}
-				if((fromLineNum > toLineNum) || (fromLineNum < minOfFromLineNum) || (toLineNum > maxOfToLineNum))
+				
+				if(fromLineNum > toLineNum)
+				{
+					//swap fromLineNum and toLineNum if their order corrupts
+					int swapbuffer = fromLineNum;
+					fromLineNum = toLineNum;
+					toLineNum = swapbuffer;
+				}
+				
+				if(fromLineNum < minOfFromLineNum)
 				{
 					//default values are applied when abnormal input delivered.
 					fromLineNum = minOfFromLineNum;
+				}
+				
+				if(toLineNum > maxOfToLineNum)
+				{
+					//default values are applied when abnormal input delivered.
 					toLineNum = maxOfToLineNum;
 				}
 			}

@@ -209,12 +209,26 @@ namespace CLV
 			}
 		}
 		
+		private void MakeMessageTidy(String[] rawMessageLine)
+		{
+			foreach(String message in rawMessageLine)
+			{
+				message.Trim('[', ']', ')' ,'(', ' ');
+				if(message.Contains("0x"))
+				{
+					message.Substring(2);
+				}
+			}
+		}
+		
 		//
 		// Returns: true if successfully found, false otherwise.
 		//
 		public bool FindMsgNameFrom(LogLinePair currentLogLinePair)
 		{
 			String[] assortedRawMessageLine = currentLogLinePair.AssortedLogLine.ToArray();
+			
+			MakeMessageTidy(assortedRawMessageLine);
 			
 			foreach(String[] canMsgItem in CAN_MSG_TABLE)
 			{
