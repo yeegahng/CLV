@@ -22,9 +22,12 @@ namespace CLV
 	/// </summary>
 	public partial class MainForm : Form
 	{
+		private ArrayList LogList = new ArrayList();
 		private List<LogLinePair> LogLinePairList = new List<LogLinePair>();
 		private int CurrentlySelectedRow = -1;
 		private InfoPopup infoPopup = new InfoPopup();
+		private String LastLogFileName = null;
+		private List<String> RawLogItemConfigList = new List<String>();
 	
 		public MainForm()
 		{
@@ -51,28 +54,33 @@ namespace CLV
 			{
 				InitializeElements();
 				
-				List<String> RawLogItemConfigList;
-
-				// Read raw log strings from the file
-				System.IO.StreamReader sr = new System.IO.StreamReader(openFileDialog.FileName);	
-				String rawLogLine = null;
-				Char[] delimiterChars = {' ', ',', ';', '\t'};
-				ArrayList LogList = new ArrayList();
-				while((rawLogLine = sr.ReadLine()) != null)
+				if(!openFileDialog.FileName.Equals(this.LastLogFileName))
 				{
-					String[] splitLogLine = new String(rawLogLine.ToCharArray()).Split(delimiterChars);
-					LogList.Add(splitLogLine);
+					LastLogFileName = (String)openFileDialog.FileName.Clone();
+					this.LogList.Clear();
+					
+					// Read raw log strings from the file
+					System.IO.StreamReader sr = new System.IO.StreamReader(openFileDialog.FileName);	
+					String rawLogLine = null;
+					Char[] delimiterChars = {' ', ',', ';', '\t'};
+					while((rawLogLine = sr.ReadLine()) != null)
+					{
+						String[] splitLogLine = new String(rawLogLine.ToCharArray()).Split(delimiterChars);
+						LogList.Add(splitLogLine);
+					}
+					sr.Close();					
+					
+					this.LogFilePath.Text = openFileDialog.FileName;
+					Debug.Log(String.Format("Opening Log File Complete ({0} lines, {1} items)", LogList.Count, ((object[])LogList[0]).Length));
+					
+					// Configure parsor
+					this.RawLogItemConfigList.Clear();
+					String[] sampleLogLine = (String[])LogList[0]; // Keep a sample line to let the user configure parsing rule.
+					RawLogItemConfiguratorWindow configWindow = new RawLogItemConfiguratorWindow();
+					RawLogItemConfigList = configWindow.GenerateConfigurationList(sampleLogLine).GetConfigurationList();
 				}
 				
-				this.LogFilePath.Text = openFileDialog.FileName;
-				Debug.Log(String.Format("Opening Log File Complete ({0} lines, {1} items)", LogList.Count, ((object[])LogList[0]).Length));
-				
-				
-				// Configure parsor
-				String[] sampleLogLine = (String[])LogList[0]; // Keep a sample line to let the user configure parsing rule.
-				RawLogItemConfiguratorWindow configWindow = new RawLogItemConfiguratorWindow();
-				RawLogItemConfigList = configWindow.GenerateConfigurationList(sampleLogLine).GetConfigurationList();
-				
+
 				// Determine log line range to translate
 				int fromLineNum, toLineNum;
 				DetermineLogLineRangeToTranslate(1, LogList.Count, out fromLineNum, out toLineNum);
@@ -82,12 +90,11 @@ namespace CLV
 				// Parse raw log strings
 				CanMsgFinder canLookupTables = new CanMsgFinder();
 				Debug.Log("Start parsing log file: " + openFileDialog.SafeFileName);
-				//for(int lineIndex = fromLineNum-1; lineIndex < toLineNum; lineIndex += 1)
-				for(int logListIndex = fromLineNum-1; logListIndex < toLineNum; logListIndex += 1)
+				for(int logLineIndex = fromLineNum-1; logLineIndex < toLineNum; logLineIndex += 1)
 				{
-					String[] aLogLine = (String[])LogList[logListIndex];
+					String[] aLogLine = (String[])LogList[logLineIndex];
 					
-					LogLinePair aLogLinePair = new LogLinePair(logListIndex+1);
+					LogLinePair aLogLinePair = new LogLinePair(logLineIndex+1);
 					bool logItemSearchResult = aLogLinePair.CreateAssortedLogLineItems(aLogLine, RawLogItemConfigList);
 					if(logItemSearchResult == false)
 					{
@@ -95,7 +102,7 @@ namespace CLV
 					}
 					canLookupTables.FindMsgNameFrom(aLogLinePair);
 					
-					Debug.Log("Line#"+(logListIndex+1) + ": " + aLogLinePair.CanMessageName
+					Debug.Log("Line#"+(logLineIndex+1) + ": " + aLogLinePair.CanMessageName
 					              + ((aLogLinePair.TargetBankId > 0) ? ", TargetBankId="+aLogLinePair.TargetBankId : ""));
 					
 					//Now we have the unique message name. Go parsing. (we should have parsing rule based on msg frame interpreter)
@@ -130,7 +137,6 @@ namespace CLV
 				this.LogLineViewTranslated.Visible = true;
 				this.CurrentlySelectedRow = 0;
 
-				sr.Close();
 			}
 		}
 

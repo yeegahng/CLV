@@ -211,12 +211,12 @@ namespace CLV
 		
 		private void MakeMessageTidy(String[] rawMessageLine)
 		{
-			foreach(String message in rawMessageLine)
+			for(int i = rawMessageLine.Length-1; i >= 0; i -= 1)
 			{
-				message.Trim('[', ']', ')' ,'(', ' ');
-				if(message.Contains("0x"))
+				rawMessageLine[i] = rawMessageLine[i].Trim('[', ']', ')' ,'(', ' ');
+				if(rawMessageLine[i].Contains("0x"))
 				{
-					message.Substring(2);
+					rawMessageLine[i] = rawMessageLine[i].Substring(2);
 				}
 			}
 		}

@@ -162,7 +162,7 @@ namespace CLV.Tools
 //			RawLogItemConfigList.Add("CANdata7");
 //			RawLogItemConfigList.Add("CANdata8");
 			
-			//원래는 화면 조작 결과를 읽어서 RawLogItemConfigList를 구성해야 한다.
+			//화면 조작 결과를 읽어서 RawLogItemConfigList를 구성한다.
 			foreach(System.Windows.Forms.Control childControl in this.panel_ItemPanel.Controls)
 			{
 				if(childControl is System.Windows.Forms.ComboBox)

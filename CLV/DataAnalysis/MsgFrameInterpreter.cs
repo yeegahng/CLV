@@ -103,7 +103,7 @@ namespace CLV
 				String canMsgName = (String)msgMapItem[INDEX_MSG];
 				if(canMsgName.Equals(currentLogLinePair.CanMessageName))
 				{
-					int frameByteLength = (int)msgMapItem[INDEX_LENGTH];
+					int frameByteLength = (int)msgMapItem[INDEX_LENGTH]; //TODO: delete this field, it's not used. (redundant information)
 					int dataIndex = 1; //TODO: ugly hard-coded: assortedLogLine contains its raw data from [1] to [8].
 					currentLogLinePair.InitializeTransalatedLogLine();
 					for(int mapIndex = INDEX_DATAFIELD_START; mapIndex < msgMapItem.Length; mapIndex += 1)
@@ -112,7 +112,6 @@ namespace CLV
 						String fieldName = dataField.FieldName;
 						int fieldLength = dataField.FieldDataLength;
 						
-						String hexStr1 = currentLogLinePair.AssortedLogLine.GetRange(dataIndex, fieldLength).ToArray().ToString();
 						String hexStr = String.Join("", currentLogLinePair.AssortedLogLine.ToArray(), dataIndex, fieldLength);
 						dataIndex += fieldLength;
 						
